@@ -1,0 +1,982 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <title>首页</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft Yahei", sans-serif;
+      background: #ffffff;
+      display: flex;
+      justify-content: center;
+      padding: 40px 0;
+      color: #111827;
+    }
+
+    /* 左侧二维码区域 - 与手机壳居中对齐 */
+    .qr-wrapper {
+      width: 220px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin-right: 32px;
+      height: 860px;
+    }
+    .qr-card {
+      width: 170px;
+      padding: 16px 16px 20px;
+      border-radius: 12px;
+      background: #ffffff;
+      box-shadow: 0 10px 30px rgba(15, 23, 42, 0.12);
+      text-align: center;
+    }
+    .qr-card-title {
+      font-size: 14px;
+      color: #4b5563;
+      margin-bottom: 10px;
+      white-space: nowrap;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+    .qr-card-title-icon {
+      width: 18px;
+      height: 18px;
+      opacity: 0.8;
+    }
+    .qr-card-title-icon svg {
+      width: 100%;
+      height: 100%;
+      stroke: #4b5563;
+      fill: none;
+      stroke-width: 1.5;
+    }
+    .qr-placeholder {
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      border-radius: 10px;
+      background: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 8px;
+      box-sizing: border-box;
+    }
+    .qr-placeholder canvas,
+    .qr-placeholder img {
+      width: 100%;
+      height: 100%;
+      border-radius: 8px;
+    }
+
+    /* 手机壳整体 */
+    .phone-shell {
+      width: 390px;
+      height: 860px;
+      border-radius: 28px;
+      background: #f5f1e8;
+      box-shadow: 0 18px 40px rgba(15, 23, 42, 0.25);
+      padding: 12px 10px 0;
+      display: flex;
+      flex-direction: column;
+    }
+    .phone-inner {
+      flex: 1;
+      border-radius: 22px;
+      background: #f5f1e8;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+
+    /* 顶部"状态栏"占位 */
+    .status-bar {
+      height: 8px;
+    }
+
+    /* 滚动内容区域 */
+    .scroll-container {
+      flex: 1;
+      overflow-y: auto;
+      padding: 12px 14px 0;
+    }
+
+    /* 欢迎横幅 */
+    .welcome-banner {
+      background: linear-gradient(135deg, #4A90E2 0%, #357ABD 100%);
+      border-radius: 16px;
+      padding: 20px 18px;
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 8px 18px rgba(15, 23, 42, 0.12);
+      margin-bottom: 14px;
+    }
+    .welcome-text {
+      flex: 1;
+    }
+    .welcome-title {
+      font-size: 20px;
+      font-weight: 700;
+      margin-bottom: 6px;
+      line-height: 1.3;
+    }
+    .welcome-subtitle {
+      font-size: 13px;
+      opacity: 0.95;
+      line-height: 1.4;
+    }
+    .book-icon {
+      font-size: 40px;
+      opacity: 0.9;
+    }
+
+    /* 搜索栏 */
+    .search-bar {
+      background: #ffffff;
+      border-radius: 16px;
+      padding: 10px 14px;
+      display: flex;
+      align-items: center;
+      box-shadow: 0 8px 18px rgba(15, 23, 42, 0.12);
+      margin-bottom: 14px;
+      cursor: pointer;
+    }
+    .search-icon {
+      width: 18px;
+      height: 18px;
+      margin-right: 10px;
+      flex-shrink: 0;
+    }
+    .search-icon svg {
+      width: 100%;
+      height: 100%;
+      stroke: #9ca3af;
+    }
+    .search-placeholder {
+      font-size: 14px;
+      color: #9ca3af;
+      white-space: nowrap;
+    }
+
+    /* 区域标题 */
+    .section-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: #111827;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .section-icon {
+      width: 18px;
+      height: 18px;
+      flex-shrink: 0;
+    }
+    .section-icon svg {
+      width: 100%;
+      height: 100%;
+      fill: #1e3a5f;
+    }
+
+    /* 阅读挑战 */
+    .challenge-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+    .challenge-card {
+      background: #ffffff;
+      border-radius: 14px;
+      padding: 16px;
+      box-shadow: 0 8px 18px rgba(15, 23, 42, 0.12);
+    }
+    .challenge-title {
+      font-size: 15px;
+      font-weight: 600;
+      color: #111827;
+      margin-bottom: 8px;
+      line-height: 1.3;
+    }
+    .challenge-description {
+      font-size: 13px;
+      color: #6b7280;
+      line-height: 1.5;
+      margin-bottom: 12px;
+    }
+    .challenge-meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .meta-item {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 12px;
+      color: #6b7280;
+    }
+    .meta-icon {
+      width: 14px;
+      height: 14px;
+      flex-shrink: 0;
+    }
+    .meta-icon svg {
+      width: 100%;
+      height: 100%;
+      fill: #1e3a5f;
+    }
+
+    /* 精选书籍网格 */
+    .books-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+    .book-card {
+      background: #ffffff;
+      border-radius: 14px;
+      padding: 9px;
+      box-shadow: 0 8px 18px rgba(15, 23, 42, 0.12);
+      display: flex;
+      flex-direction: column;
+      cursor: pointer;
+      transition: all 0.18s ease;
+      border: 2px solid transparent;
+    }
+
+    .book-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 24px rgba(15, 23, 42, 0.16);
+    }
+
+    .book-card.selected {
+      background-color: #dbeafe;
+      border-color: #1e3a8a;
+      box-shadow: 0 8px 18px rgba(30, 58, 138, 0.2);
+    }
+
+    .book-card.selected .book-title {
+      color: #1e3a8a;
+      font-weight: 700;
+    }
+    .book-cover {
+      background: #e5e7eb;
+      border-radius: 10px;
+      aspect-ratio: 3 / 4;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #6b7280;
+      font-size: 22px;
+      font-weight: 700;
+    }
+    .book-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: #111827;
+      line-height: 1.3;
+      margin-bottom: 2px;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .book-author {
+      font-size: 11px;
+      color: #6b7280;
+      line-height: 1.3;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* 书籍详情抽屉样式（通用） */
+    .book-detail-overlay {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      top: 0;
+      background: rgba(15, 23, 42, 0.40);
+      display: none;
+      align-items: flex-end;
+      justify-content: center;
+      z-index: 40;
+      border-radius: 22px;
+      overflow: hidden;
+    }
+    .book-detail-sheet {
+      width: 100%;
+      max-width: 390px;
+      border-radius: 18px 18px 0 0;
+      background: #fdfbf7;
+      box-shadow: 0 -10px 30px rgba(15, 23, 42, 0.32);
+      padding: 14px 18px 18px;
+      max-height: 80vh;
+    }
+    .book-detail-handle {
+      width: 38px;
+      height: 4px;
+      border-radius: 999px;
+      background: #e5e7eb;
+      margin: 0 auto 10px;
+    }
+    .book-detail-header {
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+      margin-bottom: 10px;
+    }
+    .book-detail-cover {
+      width: 64px;
+      height: 94px;
+      border-radius: 10px;
+      overflow: hidden;
+      background: linear-gradient(135deg, #0f4774, #1e749c);
+      flex-shrink: 0;
+    }
+    .book-detail-main {
+      flex: 1;
+      min-width: 0;
+    }
+    .book-detail-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: #111827;
+      margin-bottom: 4px;
+    }
+    .book-detail-author {
+      font-size: 13px;
+      color: #6b7280;
+      margin-bottom: 6px;
+    }
+    .book-detail-meta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      font-size: 11px;
+    }
+    .book-detail-chip {
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: rgba(15, 71, 116, 0.06);
+      color: #0f4774;
+    }
+    .book-detail-rating {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 10px;
+      font-size: 13px;
+      color: #f59e0b;
+    }
+    .book-detail-rating span {
+      color: #6b7280;
+      font-size: 12px;
+    }
+    .book-detail-desc-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: #374151;
+      margin-bottom: 4px;
+    }
+    .book-detail-desc {
+      font-size: 13px;
+      color: #4b5563;
+      line-height: 1.5;
+      max-height: 150px;
+      overflow-y: auto;
+    }
+    .book-detail-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 14px;
+    }
+    .book-detail-btn {
+      flex: 1;
+      padding: 9px 0;
+      font-size: 14px;
+      border-radius: 999px;
+      border: none;
+      cursor: pointer;
+      font-weight: 500;
+    }
+    .book-detail-btn-primary {
+      background: #0f4774;
+      color: #f9fafb;
+      box-shadow: 0 6px 18px rgba(15, 71, 116, 0.45);
+    }
+    .book-detail-btn-secondary {
+      background: #ffffff;
+      color: #111827;
+      border: 1px solid #e5e7eb;
+    }
+
+    /* 底部占位 */
+    .spacer {
+      height: 12px;
+    }
+
+    /* 底部导航 */
+    .bottom-nav {
+      height: 62px;
+      border-top: 1px solid rgba(209, 213, 219, 0.8);
+      background: rgba(248, 250, 252, 0.96);
+      display: flex;
+      align-items: center;
+      justify-content: space-around;
+      border-bottom-left-radius: 22px;
+      border-bottom-right-radius: 22px;
+      margin-bottom: 0;
+    }
+    .nav-item {
+      flex: 1;
+      text-align: center;
+      font-size: 11px;
+      color: #6b7280;
+      cursor: pointer;
+    }
+    .nav-icon {
+      width: 20px;
+      height: 20px;
+      margin: 0 auto 2px;
+      flex-shrink: 0;
+    }
+    .nav-icon svg {
+      width: 100%;
+      height: 100%;
+      stroke: #9ca3af;
+      fill: none;
+      stroke-width: 1.5;
+    }
+    .nav-item.active {
+      color: #1e3a5f;
+      font-weight: 600;
+    }
+    .nav-item.active .nav-icon svg {
+      stroke: #1e3a5f;
+    }
+
+    /* 去除底部导航栏链接下划线 */
+    .bottom-nav a {
+      text-decoration: none;
+      color: inherit;
+    }
+  
+    /* 移动端适配 - 隐藏二维码并全屏显示 */
+    @media screen and (max-width: 768px) {
+      body {
+        padding: 0;
+        background: #f5f1e8;
+      }
+      .qr-wrapper {
+        display: none !important;
+      }
+      .phone-shell {
+        width: 100% !important;
+        height: 100vh !important;
+        min-height: 100vh !important;
+        border-radius: 0 !important;
+        box-shadow: none !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        background: #f5f1e8 !important;
+      }
+      .phone-inner {
+        border-radius: 0 !important;
+        height: 100% !important;
+      }
+      .status-bar {
+        height: env(safe-area-inset-top, 0px) !important;
+      }
+      .bottom-nav {
+        border-radius: 0 !important;
+        padding-bottom: env(safe-area-inset-bottom, 0px) !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- 左侧二维码展示 -->
+  <div class="qr-wrapper">
+    <div class="qr-card">
+      <div class="qr-card-title">
+        <div class="qr-card-title-icon">
+          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <rect x="5" y="2" width="14" height="20" rx="2" ry="2" />
+            <line x1="12" y1="18" x2="12" y2="18" stroke-linecap="round" />
+          </svg>
+        </div>
+        <span>手机扫码预览</span>
+      </div>
+      <div class="qr-placeholder" id="qrPlaceholder"></div>
+    </div>
+  </div>
+
+  <!-- 右侧手机界面 -->
+  <div class="phone-shell">
+    <div class="phone-inner">
+      <div class="status-bar"></div>
+
+      <div class="scroll-container">
+        <!-- 欢迎横幅 -->
+        <div class="welcome-banner">
+          <div class="welcome-text">
+            <div class="welcome-title">欢迎来到书香琼台</div>
+            <div class="welcome-subtitle">让阅读成为一种习惯</div>
+          </div>
+          <div class="book-icon">📖</div>
+        </div>
+
+        <!-- 搜索栏 -->
+        <div class="search-bar" onclick="handleSearch()">
+          <div class="search-icon">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2"/>
+              <path d="m20 20-4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <div class="search-placeholder">搜索书籍、作者...</div>
+        </div>
+
+        <!-- 阅读挑战 -->
+        <div class="section-title">
+          <div class="section-icon">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              <path d="M4 22h16" stroke="currentColor" stroke-width="2"/>
+              <path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              <path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              <path d="M18 2H6v7a6 6 0 0 0 12 0V2Z" stroke="currentColor" stroke-width="2"/>
+            </svg>
+          </div>
+          阅读挑战
+        </div>
+        <div class="challenge-list">
+          <div class="challenge-card">
+            <div class="challenge-title">21天阅读习惯养成</div>
+            <div class="challenge-description">坚持21天每天阅读30分钟, 养成良好的阅读习惯。</div>
+            <div class="challenge-meta">
+              <div class="meta-item">
+                <div class="meta-icon">
+                  <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20" stroke="currentColor" stroke-width="2"/>
+                  </svg>
+                </div>
+                <span>目标: 3本</span>
+              </div>
+              <div class="meta-item">
+                <div class="meta-icon">
+                  <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="3" y="4" width="18" height="18" rx="2" stroke="currentColor" stroke-width="2"/>
+                    <line x1="16" y1="2" x2="16" y2="6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    <line x1="8" y1="2" x2="8" y2="6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    <line x1="3" y1="10" x2="21" y2="10" stroke="currentColor" stroke-width="2"/>
+                  </svg>
+                </div>
+                <span>21天</span>
+              </div>
+            </div>
+          </div>
+          <div class="challenge-card">
+            <div class="challenge-title">经典文学月</div>
+            <div class="challenge-description">一个月时间,深度阅读3本经典文学作品。</div>
+            <div class="challenge-meta">
+              <div class="meta-item">
+                <div class="meta-icon">
+                  <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20" stroke="currentColor" stroke-width="2"/>
+                  </svg>
+                </div>
+                <span>目标: 3本</span>
+              </div>
+              <div class="meta-item">
+                <div class="meta-icon">
+                  <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="3" y="4" width="18" height="18" rx="2" stroke="currentColor" stroke-width="2"/>
+                    <line x1="16" y1="2" x2="16" y2="6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    <line x1="8" y1="2" x2="8" y2="6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    <line x1="3" y1="10" x2="21" y2="10" stroke="currentColor" stroke-width="2"/>
+                  </svg>
+                </div>
+                <span>30天</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 精选书籍 -->
+        <div class="section-title">
+          <div class="section-icon">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          精选书籍
+        </div>
+        <div class="books-grid">
+          <div
+            class="book-card"
+            onclick="handleBookClick(this)"
+            data-title="活着"
+            data-author="余华"
+            data-category="文学"
+            data-tag="经典 · 文学"
+            data-status="已读"
+            data-rating="4.9"
+            data-words="20 万字"
+            data-desc="一部关于苦难与坚韧的长篇小说，在时代的洪流中，看一个普通人如何顽强地活下去。"
+          >
+            <div class="book-cover">书</div>
+            <div class="book-title">活着</div>
+            <div class="book-author">余华</div>
+          </div>
+          <div
+            class="book-card"
+            onclick="handleBookClick(this)"
+            data-title="三体"
+            data-author="刘慈欣"
+            data-category="科幻"
+            data-tag="硬科幻 · 史诗"
+            data-status="在读"
+            data-rating="4.8"
+            data-words="60 万字"
+            data-desc="一场跨越文明与时空的博弈，人类在宇宙黑暗森林法则下的命运抉择。"
+          >
+            <div class="book-cover">书</div>
+            <div class="book-title">三体</div>
+            <div class="book-author">刘慈欣</div>
+          </div>
+          <div
+            class="book-card"
+            onclick="handleBookClick(this)"
+            data-title="平凡的世界"
+            data-author="路遥"
+            data-category="文学"
+            data-tag="现实 · 成长"
+            data-status="想读"
+            data-rating="4.7"
+            data-words="120 万字"
+            data-desc="在广阔的社会背景下，普通青年在困境中坚持、奋斗，寻找属于自己的位置。"
+          >
+            <div class="book-cover">书</div>
+            <div class="book-title">平凡的世界</div>
+            <div class="book-author">路遥</div>
+          </div>
+          <div
+            class="book-card"
+            onclick="handleBookClick(this)"
+            data-title="百年孤独"
+            data-author="加西亚·马尔克斯"
+            data-category="文学"
+            data-tag="魔幻现实主义"
+            data-status="已读"
+            data-rating="4.6"
+            data-words="26 万字"
+            data-desc="布恩迪亚家族七代人的兴衰，从孤独走向孤独，用魔幻的笔触书写现实。"
+          >
+            <div class="book-cover">书</div>
+            <div class="book-title">百年孤独</div>
+            <div class="book-author">加西亚·马尔克斯</div>
+          </div>
+          <div
+            class="book-card"
+            onclick="handleBookClick(this)"
+            data-title="人类简史"
+            data-author="尤瓦尔·赫拉利"
+            data-category="社科"
+            data-tag="历史 · 思考"
+            data-status="在读"
+            data-rating="4.5"
+            data-words="19 万字"
+            data-desc="从智人起源到现代社会，用宏观视角重新审视人类文明的发展路径。"
+          >
+            <div class="book-cover">书</div>
+            <div class="book-title">人类简史</div>
+            <div class="book-author">尤瓦尔·赫拉利</div>
+          </div>
+          <div
+            class="book-card"
+            onclick="handleBookClick(this)"
+            data-title="小王子"
+            data-author="圣埃克苏佩里"
+            data-category="童话"
+            data-tag="童话 · 哲思"
+            data-status="已读"
+            data-rating="4.8"
+            data-words="3 万字"
+            data-desc="一部写给大人的童话，关于爱、孤独与成长，看似简单却耐人寻味。"
+          >
+            <div class="book-cover">书</div>
+            <div class="book-title">小王子</div>
+            <div class="book-author">圣埃克苏佩里</div>
+          </div>
+        </div>
+
+        <!-- 底部占位 -->
+        <div class="spacer"></div>
+      </div>
+
+      <!-- 底部导航 -->
+      <div class="bottom-nav">
+    <a href="/">
+        <div class="nav-item active" onclick="window.location.href='home.html'">
+          <div class="nav-icon">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+              <polyline points="9 22 9 12 15 12 15 22"/>
+            </svg>
+          </div>
+          <div>首页</div>
+        </div>
+      </a>
+      <a href="{% url 'book-list' %}">
+        <div class="nav-item" onclick="window.location.href='book-list.html'">
+          <div class="nav-icon">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/>
+            </svg>
+          </div>
+          <div>书单</div>
+        </div>
+        </a>
+         <a href="{% url 'check-in' %}">
+        <div class="nav-item" onclick="window.location.href='check-in.html'">
+          <div class="nav-icon">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <polyline points="9 11 12 14 22 4"/>
+              <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
+            </svg>
+          </div>
+          <div>打卡</div>
+        </div>
+      </a>
+      <a href="{% url 'community' %}">
+        <div class="nav-item" onclick="window.location.href='community.html'">
+          <div class="nav-icon">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+              <circle cx="9" cy="7" r="4"/>
+              <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+              <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+            </svg>
+          </div>
+          <div>社区</div>
+        </div>
+      </a>
+      <a href="{% url 'profile' %}">
+        <div class="nav-item" onclick="window.location.href='profile.html'">
+          <div class="nav-icon">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+              <circle cx="12" cy="7" r="4"/>
+            </svg>
+          </div>
+          <div>我的</div>
+        </div>
+      </a>
+      </div>
+
+      <!-- 书籍详情底部抽屉 -->
+      <div class="book-detail-overlay" id="bookDetail">
+        <div class="book-detail-sheet">
+          <div class="book-detail-handle"></div>
+          <div class="book-detail-header">
+            <div class="book-detail-cover" id="detailCover"></div>
+            <div class="book-detail-main">
+              <div class="book-detail-title" id="detailTitle">书名</div>
+              <div class="book-detail-author" id="detailAuthor">作者 · 分类</div>
+              <div class="book-detail-meta-row">
+                <span class="book-detail-chip" id="detailTag">标签</span>
+                <span class="book-detail-chip" id="detailStatus">阅读状态</span>
+                <span class="book-detail-chip" id="detailWords">字数</span>
+              </div>
+            </div>
+          </div>
+          <div class="book-detail-rating">
+            ★ <span id="detailRatingNumber">4.8</span>
+            <span id="detailRatingText">你的评分</span>
+          </div>
+          <div class="book-detail-desc-title">内容简介</div>
+          <div class="book-detail-desc" id="detailDesc">这里是简介内容……</div>
+          <div class="book-detail-actions">
+            <button class="book-detail-btn book-detail-btn-secondary" id="detailClose">
+              关闭
+            </button>
+            <button class="book-detail-btn book-detail-btn-primary">
+              继续阅读
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function handleSearch() {
+      window.location.href = 'search.html';
+    }
+
+    // 书籍详情：通用打开函数
+    function openBookDetail(data) {
+      var overlay = document.getElementById("bookDetail");
+      if (!overlay) return;
+
+      var titleEl = document.getElementById("detailTitle");
+      var authorEl = document.getElementById("detailAuthor");
+      var tagEl = document.getElementById("detailTag");
+      var statusEl = document.getElementById("detailStatus");
+      var wordsEl = document.getElementById("detailWords");
+      var ratingNumberEl = document.getElementById("detailRatingNumber");
+      var ratingTextEl = document.getElementById("detailRatingText");
+      var descEl = document.getElementById("detailDesc");
+      var closeBtn = document.getElementById("detailClose");
+
+      if (titleEl) titleEl.textContent = data.title || "";
+      if (authorEl) authorEl.textContent = (data.author || "") + (data.category ? " · " + data.category : "");
+      if (tagEl) tagEl.textContent = data.tag || "书籍详情";
+      if (statusEl) statusEl.textContent = data.status || "未开始";
+      if (wordsEl) wordsEl.textContent = data.words || "";
+      if (ratingNumberEl) ratingNumberEl.textContent = data.rating || "4.8";
+      if (ratingTextEl) ratingTextEl.textContent = data.rating ? "你的评分：" + data.rating : "你的评分";
+      if (descEl) descEl.textContent = data.desc || "暂无简介";
+
+      overlay.style.display = "flex";
+
+      function hideOverlay() {
+        overlay.style.display = "none";
+      }
+
+      if (closeBtn) {
+        closeBtn.onclick = hideOverlay;
+      }
+
+      overlay.onclick = function (e) {
+        if (e.target === overlay) {
+          hideOverlay();
+        }
+      };
+    }
+
+    function handleBookClick(card) {
+      // 移除其他卡片的选中状态
+      document.querySelectorAll(".book-card.selected").forEach(c => {
+        c.classList.remove("selected");
+      });
+      // 添加当前卡片的选中状态
+      card.classList.add("selected");
+
+      var data = {
+        title: card.getAttribute("data-title") || "",
+        author: card.getAttribute("data-author") || "",
+        category: card.getAttribute("data-category") || "",
+        tag: card.getAttribute("data-tag") || "",
+        status: card.getAttribute("data-status") || "",
+        rating: card.getAttribute("data-rating") || "",
+        words: card.getAttribute("data-words") || "",
+        desc: card.getAttribute("data-desc") || ""
+      };
+
+      openBookDetail(data);
+    }
+
+    // 直接使用在线API生成二维码（不依赖CDN）
+    (function() {
+      function generateQRCode() {
+        var qrPlaceholder = document.getElementById('qrPlaceholder');
+        if (!qrPlaceholder) return;
+        
+        var currentUrl = window.location.href;
+        var encodedUrl = encodeURIComponent(currentUrl);
+        
+        // 使用多个在线二维码API，按顺序尝试
+        var apiUrls = [
+          'https://api.qrserver.com/v1/create-qr-code/?size=200x200&margin=2&data=' + encodedUrl,
+          'https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=' + encodedUrl,
+          'https://chart.googleapis.com/chart?chs=200x200&cht=qr&chl=' + encodedUrl,
+          'https://qr-server.com/api/v1/create-qr-code/?size=200x200&data=' + encodedUrl
+        ];
+        
+        var img = document.createElement('img');
+        var apiIndex = 0;
+        var retryCount = 0;
+        var maxRetries = apiUrls.length;
+        
+        function tryNextAPI() {
+          if (apiIndex >= apiUrls.length) {
+            // 如果所有API都失败，尝试重新开始
+            if (retryCount < 2) {
+              retryCount++;
+              apiIndex = 0;
+              setTimeout(tryNextAPI, 1000);
+              return;
+            }
+            qrPlaceholder.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#9ca3af;font-size:12px;padding:10px;text-align:center;">二维码加载失败<br>请刷新页面重试</div>';
+            return;
+          }
+          
+          // 创建新的img元素，避免缓存问题
+          img = document.createElement('img');
+          img.src = apiUrls[apiIndex] + '&t=' + Date.now(); // 添加时间戳避免缓存
+          img.alt = '二维码';
+          img.style.width = '100%';
+          img.style.height = '100%';
+          img.style.objectFit = 'contain';
+          img.style.borderRadius = '8px';
+          img.style.display = 'block';
+          
+          var loadTimeout = setTimeout(function() {
+            img.onload = null;
+            img.onerror = null;
+            apiIndex++;
+            tryNextAPI();
+          }, 3000);
+          
+          img.onload = function() {
+            clearTimeout(loadTimeout);
+            qrPlaceholder.innerHTML = '';
+            qrPlaceholder.appendChild(img);
+            console.log('二维码生成成功，使用API:', apiUrls[apiIndex]);
+          };
+          
+          img.onerror = function() {
+            clearTimeout(loadTimeout);
+            console.warn('API加载失败，尝试下一个:', apiUrls[apiIndex]);
+            apiIndex++;
+            tryNextAPI();
+          };
+        }
+        
+        // 显示加载状态
+        qrPlaceholder.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#9ca3af;font-size:12px;">加载中...</div>';
+        
+        // 开始尝试
+        tryNextAPI();
+      }
+      
+      // 页面加载完成后生成二维码
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', generateQRCode);
+      } else {
+        generateQRCode();
+      }
+      
+      // 每60秒刷新一次二维码
+      setInterval(function() {
+        generateQRCode();
+      }, 60000);
+    })();
+  </script>
+</body>
+</html>
