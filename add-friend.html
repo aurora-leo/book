@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <title>添加好友</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft Yahei", sans-serif;
+      background: #ffffff;
+      display: flex;
+      justify-content: center;
+      padding: 40px 0;
+      color: #111827;
+    }
+
+    /* 左侧二维码区域 - 与手机壳居中对齐 */
+    .qr-wrapper {
+      width: 220px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin-right: 32px;
+      height: 860px;
+    }
+    .qr-card {
+      width: 170px;
+      padding: 16px 16px 20px;
+      border-radius: 12px;
+      background: #ffffff;
+      box-shadow: 0 10px 30px rgba(15, 23, 42, 0.12);
+      text-align: center;
+    }
+    .qr-card-title {
+      font-size: 14px;
+      color: #4b5563;
+      margin-bottom: 10px;
+      white-space: nowrap;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+    .qr-card-title-icon {
+      width: 18px;
+      height: 18px;
+      opacity: 0.8;
+    }
+    .qr-card-title-icon svg {
+      width: 100%;
+      height: 100%;
+      stroke: #4b5563;
+      fill: none;
+      stroke-width: 1.5;
+    }
+    .qr-placeholder {
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      border-radius: 10px;
+      background: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 8px;
+      box-sizing: border-box;
+    }
+    .qr-placeholder canvas,
+    .qr-placeholder img {
+      width: 100%;
+      height: 100%;
+      border-radius: 8px;
+    }
+
+    /* 手机壳整体 */
+    .phone-shell {
+      width: 390px;
+      height: 860px;
+      border-radius: 28px;
+      background: #f5f1e8;
+      box-shadow: 0 18px 40px rgba(15, 23, 42, 0.25);
+      padding: 12px 10px 0;
+      display: flex;
+      flex-direction: column;
+    }
+    .phone-inner {
+      flex: 1;
+      border-radius: 22px;
+      background: #f5f1e8;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+
+    .status-bar {
+      height: 8px;
+    }
+
+    .scroll-container {
+      flex: 1;
+      overflow-y: auto;
+      padding: 0;
+      background: #f5f1e8;
+      /* 隐藏滚动条但保持功能 */
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+    .scroll-container::-webkit-scrollbar {
+      display: none;
+    }
+
+    /* 顶部导航栏 */
+    .header {
+      background: #ffffff;
+      padding: 12px 16px;
+      border-bottom: 1px solid #e5e7eb;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .back-button {
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      border-radius: 8px;
+      transition: background-color 0.2s;
+    }
+    .back-button:hover {
+      background-color: rgba(15, 71, 116, 0.1);
+    }
+    .back-button svg {
+      width: 20px;
+      height: 20px;
+      stroke: #0f4774;
+      fill: none;
+      stroke-width: 2;
+    }
+    .header-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: #111827;
+    }
+
+    /* 主内容区域 */
+    .main-content {
+      padding: 12px 14px 20px;
+    }
+
+    /* 搜索区域 */
+    .search-section {
+      margin-bottom: 14px;
+    }
+    .search-title {
+      display: none;
+    }
+    .search-bar {
+      background: #ffffff;
+      border-radius: 16px;
+      padding: 10px 14px;
+      display: flex;
+      align-items: center;
+      box-shadow: 0 10px 30px rgba(15, 23, 42, 0.12);
+      margin-bottom: 14px;
+    }
+    .search-icon {
+      width: 18px;
+      height: 18px;
+      margin-right: 10px;
+      flex-shrink: 0;
+    }
+    .search-icon svg {
+      width: 100%;
+      height: 100%;
+      stroke: #9ca3af;
+    }
+    .search-input {
+      flex: 1;
+      border: none;
+      outline: none;
+      font-size: 14px;
+      color: #111827;
+      background: transparent;
+    }
+    .search-input::placeholder {
+      color: #9ca3af;
+    }
+    .search-cancel {
+      margin-left: 10px;
+      font-size: 14px;
+      color: #4A90E2;
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    /* 搜索结果标题 */
+    .search-results-title {
+      font-size: 15px;
+      font-weight: 600;
+      color: #111827;
+      margin: 14px 0 10px;
+      display: none;
+      align-items: center;
+      gap: 6px;
+    }
+    .search-keyword {
+      color: #4A90E2;
+    }
+
+    /* 说明区域 */
+    .instruction-section {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      padding: 20px 0;
+    }
+    .instruction-icon {
+      width: 80px;
+      height: 80px;
+      margin-bottom: 20px;
+      color: #9ca3af;
+    }
+    .instruction-icon svg {
+      width: 100%;
+      height: 100%;
+      stroke: #9ca3af;
+      fill: none;
+      stroke-width: 1.5;
+    }
+    .instruction-text {
+      font-size: 14px;
+      color: #6b7280;
+      line-height: 1.6;
+      margin-bottom: 8px;
+    }
+    .instruction-text:last-of-type {
+      margin-bottom: 0;
+    }
+
+    /* 搜索结果区域 */
+    .user-grid {
+      margin-top: 14px;
+    }
+    .user-item {
+      background: #ffffff;
+      border-radius: 12px;
+      padding: 12px;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      box-shadow: 0 4px 12px rgba(15, 23, 42, 0.08);
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .user-item:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 16px rgba(15, 23, 42, 0.12);
+    }
+    .user-avatar {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #0f4774, #1e749c);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 600;
+      font-size: 18px;
+      flex-shrink: 0;
+    }
+    .user-info {
+      flex: 1;
+      min-width: 0;
+    }
+    .user-name {
+      font-size: 15px;
+      font-weight: 600;
+      color: #111827;
+      margin-bottom: 2px;
+    }
+    .user-nickname {
+      font-size: 13px;
+      color: #6b7280;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .add-button {
+      padding: 8px 16px;
+      background: #0f4774;
+      color: white;
+      border: none;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+    .add-button:hover {
+      background: #0d3a5f;
+    }
+
+    /* 空状态 */
+    .empty-state {
+      padding: 72px 0 60px;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      color: #6b7280;
+    }
+    .empty-icon {
+      width: 46px;
+      height: 46px;
+      border-radius: 14px;
+      border: 2px dashed #9ca3af;
+      margin-bottom: 14px;
+      position: relative;
+    }
+    .empty-icon::before,
+    .empty-icon::after {
+      content: "";
+      position: absolute;
+      background: #9ca3af;
+    }
+    .empty-icon::before {
+      width: 22px;
+      height: 3px;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+    }
+    .empty-icon::after {
+      width: 3px;
+      height: 22px;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+    }
+    .empty-text {
+      font-size: 13px;
+      white-space: nowrap;
+    }
+
+    /* 移动端适配 - 隐藏二维码并全屏显示 */
+    @media screen and (max-width: 768px) {
+      body {
+        padding: 0;
+        background: #f5f1e8;
+      }
+      .qr-wrapper {
+        display: none !important;
+      }
+      .phone-shell {
+        width: 100% !important;
+        height: 100vh !important;
+        min-height: 100vh !important;
+        border-radius: 0 !important;
+        box-shadow: none !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        background: #f5f1e8 !important;
+      }
+      .phone-inner {
+        border-radius: 0 !important;
+        height: 100% !important;
+      }
+      .status-bar {
+        height: env(safe-area-inset-top, 0px) !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- 左侧二维码展示 -->
+  <div class="qr-wrapper">
+    <div class="qr-card">
+      <div class="qr-card-title">
+        <div class="qr-card-title-icon">
+          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <rect x="5" y="2" width="14" height="20" rx="2" ry="2" />
+            <line x1="12" y1="18" x2="12" y2="18" stroke-linecap="round" />
+          </svg>
+        </div>
+        <span>手机扫码预览</span>
+      </div>
+      <div class="qr-placeholder" id="qrPlaceholder"></div>
+    </div>
+  </div>
+
+  <!-- 右侧手机界面 -->
+  <div class="phone-shell">
+    <div class="phone-inner">
+      <div class="status-bar"></div>
+
+      <div class="scroll-container">
+        <!-- 顶部导航栏 -->
+        <div class="header">
+          <div class="back-button" onclick="window.location.href='intimate-friend.html'">
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path d="M19 12H5" />
+              <path d="M12 19l-7-7 7-7" />
+            </svg>
+          </div>
+          <div class="header-title">添加好友</div>
+        </div>
+
+        <!-- 主内容区域 -->
+        <div class="main-content">
+          <!-- 搜索区域 -->
+        <div class="search-section">
+          <div class="search-title">通过手机号或昵称搜索</div>
+          <div class="search-bar">
+            <div class="search-icon">
+              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2"/>
+                <path d="m20 20-4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+            </div>
+            <input 
+              type="text" 
+              class="search-input" 
+              placeholder="手机号或昵称"
+              id="searchInput"
+            />
+            <div class="search-cancel" id="searchCancel">取消</div>
+          </div>
+        </div>
+
+        <!-- 搜索结果标题 -->
+        <div class="search-results-title" id="searchResultsTitle">
+          搜索结果：<span class="search-keyword" id="searchKeyword"></span>
+        </div>
+
+        <!-- 搜索结果区域 -->
+        <div class="user-grid" id="userGrid"></div>
+
+        <!-- 空状态 -->
+        <div class="empty-state" id="emptyState">
+          <div class="empty-icon"></div>
+          <div class="empty-text">暂无搜索结果</div>
+        </div>
+
+          <!-- 说明区域 -->
+          <div class="instruction-section">
+            <div class="instruction-icon">
+              <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <!-- 人形轮廓 -->
+                <circle cx="12" cy="7" r="3" />
+                <path d="M5 20a7 7 0 0 1 14 0" />
+                <!-- 放大镜 -->
+                <circle cx="12" cy="4" r="4" fill="none" />
+                <path d="m15 7 3 3" />
+              </svg>
+            </div>
+            <div class="instruction-text">输入对方的手机号或昵称</div>
+            <div class="instruction-text">找到书友,一起分享阅读的乐趣</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // 直接使用在线API生成二维码（不依赖CDN）
+    (function() {
+      function generateQRCode() {
+        var qrPlaceholder = document.getElementById('qrPlaceholder');
+        if (!qrPlaceholder) return;
+        
+        var currentUrl = window.location.href;
+        var encodedUrl = encodeURIComponent(currentUrl);
+        
+        // 使用多个在线二维码API，按顺序尝试
+        var apiUrls = [
+          'https://api.qrserver.com/v1/create-qr-code/?size=200x200&margin=2&data=' + encodedUrl,
+          'https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=' + encodedUrl,
+          'https://chart.googleapis.com/chart?chs=200x200&cht=qr&chl=' + encodedUrl,
+          'https://qr-server.com/api/v1/create-qr-code/?size=200x200&data=' + encodedUrl
+        ];
+        
+        var img = document.createElement('img');
+        var apiIndex = 0;
+        var retryCount = 0;
+        var maxRetries = apiUrls.length;
+        
+        function tryNextAPI() {
+          if (apiIndex >= apiUrls.length) {
+            // 如果所有API都失败，尝试重新开始
+            if (retryCount < 2) {
+              retryCount++;
+              apiIndex = 0;
+              setTimeout(tryNextAPI, 1000);
+              return;
+            }
+            qrPlaceholder.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#9ca3af;font-size:12px;padding:10px;text-align:center;">二维码加载失败<br>请刷新页面重试</div>';
+            return;
+          }
+          
+          // 创建新的img元素，避免缓存问题
+          img = document.createElement('img');
+          img.src = apiUrls[apiIndex] + '&t=' + Date.now(); // 添加时间戳避免缓存
+          img.alt = '二维码';
+          img.style.width = '100%';
+          img.style.height = '100%';
+          img.style.objectFit = 'contain';
+          img.style.borderRadius = '8px';
+          img.style.display = 'block';
+          
+          var loadTimeout = setTimeout(function() {
+            img.onload = null;
+            img.onerror = null;
+            apiIndex++;
+            tryNextAPI();
+          }, 3000);
+          
+          img.onload = function() {
+            clearTimeout(loadTimeout);
+            qrPlaceholder.innerHTML = '';
+            qrPlaceholder.appendChild(img);
+            console.log('二维码生成成功，使用API:', apiUrls[apiIndex]);
+          };
+          
+          img.onerror = function() {
+            clearTimeout(loadTimeout);
+            console.warn('API加载失败，尝试下一个:', apiUrls[apiIndex]);
+            apiIndex++;
+            tryNextAPI();
+          };
+        }
+        
+        // 显示加载状态
+        qrPlaceholder.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#9ca3af;font-size:12px;">加载中...</div>';
+        
+        // 开始尝试
+        tryNextAPI();
+      }
+      
+      // 页面加载完成后生成二维码
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', generateQRCode);
+      } else {
+        generateQRCode();
+      }
+      
+      // 每60秒刷新一次二维码
+      setInterval(function() {
+        generateQRCode();
+      }, 60000);
+    })();
+  </script>
+  
+  <script>
+    // 模拟用户数据
+    const users = [
+      {
+        id: 1,
+        name: "张三",
+        nickname: "阅读爱好者",
+        phone: "13800138000"
+      },
+      {
+        id: 2,
+        name: "李四",
+        nickname: "书虫一枚",
+        phone: "13800138001"
+      },
+      {
+        id: 3,
+        name: "王五",
+        nickname: "文学青年",
+        phone: "13800138002"
+      },
+      {
+        id: 4,
+        name: "赵六",
+        nickname: "科幻迷",
+        phone: "13800138003"
+      },
+      {
+        id: 5,
+        name: "钱七",
+        nickname: "历史研究者",
+        phone: "13800138004"
+      }
+    ];
+
+    let filteredUsers = [];
+
+    // DOM元素
+    const searchInput = document.getElementById('searchInput');
+    const searchCancel = document.getElementById('searchCancel');
+    const searchResultsTitle = document.getElementById('searchResultsTitle');
+    const searchKeyword = document.getElementById('searchKeyword');
+    const userGrid = document.getElementById('userGrid');
+    const emptyState = document.getElementById('emptyState');
+    const instructionSection = document.querySelector('.instruction-section');
+
+    // 搜索功能
+    function performSearch(keyword) {
+      if (!keyword || keyword.trim() === '') {
+        // 如果搜索词为空，显示说明区域
+        instructionSection.style.display = 'flex';
+        searchResultsTitle.style.display = 'none';
+        userGrid.innerHTML = '';
+        emptyState.style.display = 'none';
+        return;
+      }
+
+      // 过滤用户数据
+      filteredUsers = users.filter(user => 
+        user.name.includes(keyword) || 
+        user.nickname.includes(keyword) || 
+        user.phone.includes(keyword)
+      );
+
+      // 更新界面
+      instructionSection.style.display = 'none';
+      searchResultsTitle.style.display = 'flex';
+      searchKeyword.textContent = keyword;
+
+      if (filteredUsers.length > 0) {
+        // 显示搜索结果
+        emptyState.style.display = 'none';
+        renderUserResults();
+      } else {
+        // 显示空状态
+        userGrid.innerHTML = '';
+        emptyState.style.display = 'flex';
+      }
+    }
+
+    // 渲染用户搜索结果
+    function renderUserResults() {
+      userGrid.innerHTML = filteredUsers.map(user => `
+        <div class="user-item">
+          <div class="user-avatar">${user.name.charAt(0)}</div>
+          <div class="user-info">
+            <div class="user-name">${user.name}</div>
+            <div class="user-nickname">${user.nickname}</div>
+          </div>
+          <button class="add-button" onclick="addFriend(${user.id}, '${user.name}')">添加</button>
+        </div>
+      `).join('');
+    }
+
+    // 添加好友功能
+    function addFriend(userId, userName) {
+      console.log('添加好友:', userId, userName);
+      alert('已发送好友请求给' + userName);
+    }
+
+    // 事件监听
+    document.addEventListener('DOMContentLoaded', function () {
+      // 搜索按钮点击事件（Enter键）
+      searchInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+          performSearch(searchInput.value.trim());
+        }
+      });
+
+      // 搜索取消按钮事件
+      searchCancel.addEventListener('click', function() {
+        searchInput.value = '';
+        performSearch('');
+      });
+    });
+  </script>
+</body>
+</html>
+
